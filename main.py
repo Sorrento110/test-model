@@ -8,6 +8,7 @@ from collections import OrderedDict
 import urllib.request
 import os
 import requests
+import xarray as xr
 if not os.path.exists('output'):
     os.mkdir('output')
 
@@ -52,6 +53,16 @@ def main(temp):
     fname = f"output_{params['rainfall']}_{temp}"
     df.to_csv(f'output/{fname}.csv', index=False)
     print(f"Saved output as /model/output/{fname}.csv")
+
+    df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
+    df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
+
+    # Step 1: Convert the pandas DataFrame to an xarray Dataset
+    xr_dataset = xr.Dataset.from_dataframe(df.set_index('date'))
+
+    # Step 2: Save the xarray Dataset to a NetCDF file
+    xr_dataset.to_netcdf('output/output_file.nc')
+
 
 
 def get_media():
